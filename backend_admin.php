@@ -8,13 +8,13 @@ if ($conn->connect_error) {
 }
 
 // Récupérer les demandes avec filtres
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['notifications']) && !isset($_GET['approved']) && !isset($_GET['users']) && !isset($_GET['user_teams'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['notifications']) && !isset($_GET['approved']) && !isset($_GET['users']) && !isset($_GET['user_teams']) && !isset($_GET['request_id']) && !isset($_GET['leave_summary'])) {
     $status = isset($_GET['status']) ? $_GET['status'] : 'all';
     $team = isset($_GET['team']) ? $_GET['team'] : 'all';
     $date = isset($_GET['date']) ? $_GET['date'] : null;
     $department = isset($_GET['department']) ? $_GET['department'] : 'all';
 
-    $query = "SELECT d.id, u.nom, d.type_conge, d.date_debut, d.date_fin, d.heures_demandes, d.jours_demandes, u.departement, d.status 
+    $query = "SELECT d.id, u.nom, d.type_conge, d.date_debut, d.date_fin, d.heures_demandes, d.jours_demandes, u.departement,u.equipe,d.status 
               FROM demandes_conges d 
               JOIN utilisateurs u ON d.utilisateur_id = u.id 
               WHERE 1=1";
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['notifications']) && !i
         $query .= " AND d.status = ?";
     }
     if ($team !== 'all') {
-        $query .= " AND u.equipe LIKE ?";
+        $query .= " AND FIND_IN_SET(?, REPLACE(u.equipe, '+', ','))";
     }
     if (!empty($date)) {
         $query .= " AND DATE(d.date_debut) <= ? AND DATE(d.date_fin) >= ?";
@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['notifications']) && !i
     }
     if ($team !== 'all') {
         $types .= 's';
-        $params[] = "%$team%";
+        $params[] = $team;
     }
     if (!empty($date)) {
         $types .= 'ss';
@@ -89,6 +89,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id']) && isset($_POST
     } else {
         echo json_encode(["success" => false, "message" => "La mise à jour a échoué."]);
     }
+}
+
+// Déconnexion de l'administrateur
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) {
+    session_start();
+    session_unset();
+    session_destroy();
+    echo json_encode(["success" => true, "message" => "Déconnexion réussie."]);
+    exit();
 }
 
 // Récupérer les notifications
@@ -185,6 +194,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['user_teams'])) {
     }
 
     echo json_encode($users);
+}
+
+// Récupérer les détails de la demande
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['request_id'])) {
+    $request_id = $_GET['request_id'];
+    $query = "
+        SELECT d.id, u.nom, u.equipe, d.date_debut, d.date_fin
+        FROM demandes_conges d
+        JOIN utilisateurs u ON d.utilisateur_id = u.id
+        WHERE d.id = ?
+    ";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $request_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $request = $result->fetch_assoc();
+
+    if ($request) {
+        // Séparer les équipes de l'utilisateur
+        $teams = explode('+', $request['equipe']);
+        $teamAbsences = [];
+
+        foreach ($teams as $team) {
+            // Récupérer les absences pour chaque équipe
+            $query = "
+                SELECT u.nom, d.date_debut, d.date_fin
+                FROM demandes_conges d
+                JOIN utilisateurs u ON d.utilisateur_id = u.id
+                WHERE FIND_IN_SET(?, REPLACE(u.equipe, '+', ',')) AND (
+                    (d.date_debut <= ? AND d.date_fin >= ?) OR
+                    (d.date_debut <= ? AND d.date_fin >= ?)
+                ) AND d.id != ?
+            ";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("sssssi", $team, $request['date_debut'], $request['date_debut'], $request['date_fin'], $request['date_fin'], $request_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $absences = $result->fetch_all(MYSQLI_ASSOC);
+            $totalInPeriod = count($absences);
+
+            // Ajouter une recommandation si plus de 2 utilisateurs sont en congé
+            $recommendation = $totalInPeriod > 2;
+
+            $teamAbsences[] = [
+                'team' => $team,
+                'totalInPeriod' => $totalInPeriod,
+                'absences' => $absences,
+                'recommendation' => $recommendation
+            ];
+        }
+
+        // Réponse JSON
+        echo json_encode([
+            'nom' => $request['nom'],
+            'equipe' => $request['equipe'],
+            'date_debut' => $request['date_debut'],
+            'date_fin' => $request['date_fin'],
+            'teamAbsences' => $teamAbsences
+        ]);
+    } else {
+        http_response_code(404);
+        echo json_encode(['error' => 'Demande non trouvée']);
+    }
+}
+
+// Récupérer le résumé des congés
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['leave_summary'])) {
+    $team = isset($_GET['team']) ? $_GET['team'] : 'all';
+    $year = isset($_GET['year']) ? $_GET['year'] : 'all';
+
+    $query = "
+        SELECT u.nom, u.equipe, 
+               COALESCE(SUM(d.jours_demandes), 0) as totalCongeDonneAnnee,
+               (60 - COALESCE(SUM(d.jours_demandes), 0)) as totalCongeDisponibleAnnee
+        FROM utilisateurs u
+        LEFT JOIN demandes_conges d ON u.id = d.utilisateur_id AND YEAR(d.date_debut) = ?
+        WHERE 1=1
+    ";
+
+    if ($team !== 'all') {
+        $query .= " AND FIND_IN_SET(?, REPLACE(u.equipe, '+', ','))";
+    }
+
+    $query .= " GROUP BY u.id ORDER BY totalCongeDisponibleAnnee DESC";
+
+    $stmt = $conn->prepare($query);
+
+    $params = [];
+    $types = 'i';
+    $params[] = $year === 'all' ? 0 : $year;
+
+    if ($team !== 'all') {
+        $types .= 's';
+        $params[] = $team;
+    }
+
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $leaveSummary = $result->fetch_all(MYSQLI_ASSOC);
+
+    echo json_encode($leaveSummary);
 }
 
 $conn->close();
