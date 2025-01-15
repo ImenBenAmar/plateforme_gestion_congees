@@ -196,6 +196,7 @@ if (!isset($_SESSION['admin_nom'])) {
         <a href="#absence-calendar" onclick="loadCalendarContent()">Calendrier des Absences</a>
         <a href="#dashboard" onclick="toggleDashboard()">Analyse des Absences</a>
         <a href="#assign-team" onclick="toggleAssignTeam()">Ajouter un employé</a>
+        <a href="#leave-summary" onclick="toggleLeaveSummary()">Résumé des Congés</a>
         <a href="#" onclick="logout()">Déconnexion</a>
 
     </div>
@@ -307,7 +308,40 @@ if (!isset($_SESSION['admin_nom'])) {
                 <tbody id="user-teams"></tbody>
             </table>
         </div>
+        <div id="leave-summary" class="content-section">
+            <h2>Résumé des Congés</h2>
+            <div class="filters">
+                <select id="team-filter-summary" class="form-control mb-2">
+                    <option value="all">Sélectionner une équipe</option>
+                    <option value="RH">RH</option>
+                    <option value="Développement">Développement</option>
+                    <option value="Marketing">Marketing</option>
+                    <!-- Ajouter d'autres équipes si nécessaire -->
+                </select>
+                <select id="year-filter-summary" class="form-control mb-2">
+                    <option value="all">Sélectionner une année</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026">2026</option>
+                    <!-- Ajouter d'autres années si nécessaire -->
+                </select>
+                <button class="btn btn-primary" onclick="filterLeaveSummary()">Filtrer</button>
+            </div>
+            <table class="table table-striped mt-4">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Nom de l'Utilisateur</th>
+                        <th>Équipe</th>
+                        <th>Total Congés Donnés (Année)</th>
+                        <th>Total Congés Disponibles (Année)</th>
+                    </tr>
+                </thead>
+                <tbody id="leave-summary-body"></tbody>
+            </table>
+        </div>
     </div>
+
+
 
     <div id="absence-calendar" class="content-section" style="display: none;">
     <!-- Le contenu de CalendrierAbsence.php sera injecté ici -->
@@ -316,7 +350,6 @@ if (!isset($_SESSION['admin_nom'])) {
 
 
 
-    
 <script>
  
 
@@ -348,6 +381,10 @@ if (!isset($_SESSION['admin_nom'])) {
 
     function toggleAssignTeam() {
         showSection('assign-team');
+    }
+    
+    function toggleLeaveSummary() {
+        showSection('leave-summary');
     }
 
 function loadLeaveRequests() {
@@ -524,6 +561,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
     // Charger les utilisateurs et leurs équipes
     loadUserTeams();
+    // Charger le résumé des congés
+    loadLeaveSummary();
 });
 
 function loadUsers() {
@@ -591,6 +630,7 @@ function loadLeaveSummary() {
             displayLeaveSummary(data);
         });
 }
+
 
 function displayLeaveSummary(data) {
     const tbody = document.getElementById('leave-summary-body');
