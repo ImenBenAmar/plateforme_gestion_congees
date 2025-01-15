@@ -25,7 +25,9 @@ $query = "
         COUNT(*) AS nombre_absences, 
         SUM(jours_demandes) AS total_jours
     FROM demandes_conges
-    WHERE utilisateur_id = ? AND YEAR(date_debut) = ?
+    WHERE utilisateur_id = ? 
+    AND YEAR(date_debut) = ? 
+    AND status = 'approuvé'
     GROUP BY type_conge
 ";
 
