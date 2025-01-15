@@ -164,6 +164,28 @@ if (!isset($_SESSION['admin_nom'])) {
             display: none;
             margin-top: 20px;
         }
+        .modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 20%; /* Distance depuis le haut */
+    left: 50%;
+    transform: translate(-50%, 0); /* Ne pas centrer verticalement */
+    background-color: white;
+    padding: 20px; /* Espacement interne équilibré */
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Coins arrondis */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Effet de flottement */
+    z-index: 10000; /* Priorité d'affichage */
+    width: 40%; /* Largeur modale */
+    max-width: 500px; /* Largeur maximale */
+    min-width: 300px; /* Largeur minimale */
+    text-align: center;
+    margin-bottom: 20px; /* Optionnel : espacement en bas */
+}
+
+.modal.active {
+    display: block; /* Afficher la modale quand active */
+}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -174,6 +196,8 @@ if (!isset($_SESSION['admin_nom'])) {
         <a href="#absence-calendar" onclick="loadCalendarContent()">Calendrier des Absences</a>
         <a href="#dashboard" onclick="toggleDashboard()">Analyse des Absences</a>
         <a href="#assign-team" onclick="toggleAssignTeam()">Ajouter un employé</a>
+        <a href="#" onclick="logout()">Déconnexion</a>
+
     </div>
     <div class="content">
         <div class="header">
@@ -202,19 +226,19 @@ if (!isset($_SESSION['admin_nom'])) {
                 
                 <select id="department-filter" class="form-control mb-2">
                     <option value="all">Sélectionner un département</option>
-                    <option value="informatique">Informatique (IT)</option>
-                    <option value="developpement">Développement Logiciel</option>
-                    <option value="infrastructure">Infrastructure et Réseaux</option>
-                    <option value="cybersecurite">Cybersécurité</option>
-                    <option value="support">Support Technique</option>
-                    <option value="gestion_projet">Gestion de Projet Informatique</option>
-                    <option value="data_science">Data Science et Analyse de Données</option>
-                    <option value="qualite">Assurance Qualité (QA)</option>
-                    <option value="database">Gestion de Base de Données</option>
-                    <option value="bi">Business Intelligence (BI)</option>
-                    <option value="cloud_computing">Cloud Computing</option>
-                    <option value="innovation_tech">Innovation Technologique</option>
+                    <option value="Informatique (IT)">Informatique (IT)</option>
+                    <option value="Développement Logiciel">Développement Logiciel</option>
+                    <option value="Infrastructure et Réseaux">Infrastructure et Réseaux</option>
+                    <option value="Cybersécurité">Cybersécurité</option>
+                    <option value="Support Technique">Support Technique</option>
+                    <option value="Gestion de Projet Informatique">Gestion de Projet Informatique</option>
+                    <option value="Data Science et Analyse de Données">Data Science et Analyse de Données</option>
+                    <option value="Gestion de Base de Données">Gestion de Base de Données</option>
+                    <option value="Business Intelligence (BI)">Business Intelligence (BI)</option>
+                    <option value="Cloud Computing">Cloud Computing</option>
+                    <option value="Innovation Technologique">Innovation Technologique</option>
                 </select>
+                
                 
                 <input type="date" id="date-filter" class="form-control mb-2">
                 
@@ -287,7 +311,7 @@ if (!isset($_SESSION['admin_nom'])) {
 
     <div id="absence-calendar" class="content-section" style="display: none;">
     <!-- Le contenu de CalendrierAbsence.php sera injecté ici -->
-</div>
+    </div>
 
 
 
@@ -350,11 +374,11 @@ function displayRequests(data) {
                 <td>${demande.departement}</td>
                 <td id="status-${demande.id}">${demande.status}</td>
                 <td id="action-${demande.id}">
-                    ${
+                        ${
                         demande.status === 'en attente'
                         ? `
-                            <button class="btn btn-success" onclick="updateStatus(${demande.id}, 'approuvé')">Approuver</button>
-                            <button class="btn btn-danger" onclick="updateStatus(${demande.id}, 'refusé')">Refuser</button>
+                            <button class="btn btn-success" onclick="showConfirmationModal(${demande.id}, 'approuvé')">Approuver</button>
+                            <button class="btn btn-danger" onclick="showConfirmationModal(${demande.id}, 'refusé')">Refuser</button>
                         `
                         : `<span>Aucune action</span>`
                     }
@@ -390,6 +414,45 @@ function updateStatus(id, status) {
         console.error('Erreur:', error);
         alert('Une erreur est survenue lors de la mise à jour du statut.');
     });
+}
+
+function showConfirmationModal(id, status) {
+    fetch(`backend_admin.php?request_id=${id}`)
+        .then(response => response.json())
+        .then(data => {
+            const modal = document.getElementById('confirmationModal');
+            let requestDetails = `
+                <p>La demande de <strong>${data.nom}</strong> dans les équipes <strong>${data.equipe}</strong>.</p>
+                <p>Période : <strong>${data.date_debut}</strong> à <strong>${data.date_fin}</strong>.</p>
+            `;
+
+            data.teamAbsences.forEach(team => {
+                const absencesList = team.absences.map(absence => absence.nom).join(', ');
+                requestDetails += `
+                    <p><strong>Équipe ${team.team} :</strong></p>
+                    <p>Nombre total d'utilisateurs en congé : ${team.totalInPeriod}</p>
+                    ${team.totalInPeriod > 0 ? `<p>Utilisateurs en congé : ${absencesList}</p>` : ''}
+                    ${team.recommendation ? `<p style="color: red;">Recommandation : Il est préférable de ne pas approuver cette demande pour maintenir le travail dans cette équipe.</p>` : ''}
+                `;
+            });
+
+            document.getElementById('requestDetails').innerHTML = requestDetails;
+            modal.style.display = 'block';
+
+            // Bouton de confirmation
+            document.getElementById('confirmAction').onclick = function () {
+                updateStatus(id, status);
+                modal.style.display = 'none';
+            };
+
+            // Bouton d'annulation
+            document.getElementById('cancelAction').onclick = function () {
+                modal.style.display = 'none';
+            };
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des données :', error);
+        });
 }
 
 function filterRequests() {
@@ -490,6 +553,7 @@ function assignTeam() {
     .then(data => {
         if (data.success) {
             alert('L\'utilisateur a été affecté à l\'équipe avec succès !');
+            loadUserTeams(); // Reload the user teams after successful assignment
         } else {
             alert('L\'affectation de l\'utilisateur à l\'équipe a échoué.');
         }
@@ -519,6 +583,64 @@ function loadUserTeams() {
             console.error('Erreur lors du chargement des utilisateurs et de leurs équipes:', error);
         });
 }
+
+function loadLeaveSummary() {
+    fetch('backend_admin.php?leave_summary=true')
+        .then(response => response.json())
+        .then(data => {
+            displayLeaveSummary(data);
+        });
+}
+
+function displayLeaveSummary(data) {
+    const tbody = document.getElementById('leave-summary-body');
+    tbody.innerHTML = ''; // Réinitialiser le contenu
+    data.sort((a, b) => b.totalCongeDisponibleAnnee - a.totalCongeDisponibleAnnee); // Trier par Total Congés Disponibles (Année) en ordre décroissant
+    data.forEach(user => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${user.nom}</td>
+                <td>${user.equipe}</td>
+                <td>${user.totalCongeDonneAnnee || 0} jours</td>
+                <td>${user.totalCongeDisponibleAnnee || 60} jours</td>
+            </tr>
+        `;
+    });
+}
+
+function filterLeaveSummary() {
+    const team = document.getElementById('team-filter-summary').value;
+    const year = document.getElementById('year-filter-summary').value;
+
+    fetch(`backend_admin.php?leave_summary=true&team=${team}&year=${year}`)
+        .then(response => response.json())
+        .then(data => {
+            displayLeaveSummary(data);
+        });
+}
+
+function logout() {
+    fetch('backend_admin.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: 'logout=true'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = 'loginadmin.html';
+        } else {
+            alert('La déconnexion a échoué.');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Une erreur est survenue lors de la déconnexion.');
+    });
+}
+
 
    // Fonction pour charger le calendrier et afficher les absences
 function loadCalendarContent() {
@@ -584,7 +706,6 @@ function fetchAbsencesForEmployee(employeeId, month, year) {
 }
 
 // Fonction pour surligner les absences et appliquer les couleurs
-// Fonction pour surligner les absences et appliquer les couleurs
 function highlightAbsences(absences, month, year) {
     document.querySelectorAll('td').forEach(td => td.classList.remove('highlight', 'conge', 'maladie'));
 
@@ -612,6 +733,13 @@ function highlightAbsences(absences, month, year) {
     });
 }
 </script>
+<!-- Confirmation Modal -->
+<div id="confirmationModal" class="modal">
+    <div id="requestDetails"></div>
+    <p>Êtes-vous sûr de vouloir mettre à jour le statut de cette demande ?</p>
+    <button id="confirmAction" class="btn btn-primary">Confirmer</button>
+    <button id="cancelAction" class="btn btn-secondary">Annuler</button>
+</div>
 
 </body>
 </html>
