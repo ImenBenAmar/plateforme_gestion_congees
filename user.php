@@ -297,7 +297,7 @@ body {
             margin-top: 20px; /* Espacement optionnel pour éloigner du bord du haut */
         }
 
-        .info {
+    .info {
     display: flex;
     flex-direction: column;
     background-color: #d4b5e9; /* Fond bleu similaire au calendrier */
@@ -305,7 +305,7 @@ body {
     padding: 20px;
     border-radius: 8px; /* Coins légèrement arrondis si souhaité */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 1300px; /* Largeur ajustée pour la section d'information */
+    width: 1500px; /* Largeur ajustée pour la section d'information */
     border: none; /* Supprimer la bordure */
 }
 
@@ -860,7 +860,7 @@ body {
 <body>
     <div class="top-bar">
         <!-- Bouton "Historique" -->
-        <button class="top-bar-btn" onclick="window.location.href='login.html'">Déconnexion</button>
+        <button class="top-bar-btn" onclick="window.location.href='PageAcceuil.html'">Déconnexion</button>
     
         <!-- Bouton "Dashboard" -->
 

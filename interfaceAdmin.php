@@ -630,7 +630,7 @@ function logout() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.href = 'loginadmin.html';
+            window.location.href = 'PageAcceuil.html';
         } else {
             alert('La déconnexion a échoué.');
         }
