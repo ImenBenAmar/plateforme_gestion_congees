@@ -40,27 +40,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo "Connexion réussie à la base de données.\n";
 
         // Requête pour insérer la demande de congé dans la base de données
-      // Requête pour insérer la demande de congé dans la base de données
-      $stmt_insert = $pdo->prepare("
-      INSERT INTO demandes_conges (
-          utilisateur_id,
-          type_conge,
-          date_debut,
-          date_fin,
-          heures_demandes,
-          jours_demandes,
-          retour_travail,
-          vue
-      ) VALUES (
-          :utilisateur_id,
-          :type_conge,
-          :date_debut,
-          :date_fin,
-          :heures_demandes,
-          :jours_demandes,
-          :retour_travail,
-          0  -- vue définie explicitement à 0
-      )
+        $stmt_insert = $pdo->prepare("
+            INSERT INTO demandes_conges (
+                utilisateur_id,
+                type_conge,
+                date_debut,
+                date_fin,
+                heures_demandes,
+                jours_demandes,
+                retour_travail,
+                vue
+            ) VALUES (
+                :utilisateur_id,
+                :type_conge,
+                :date_debut,
+                :date_fin,
+                :heures_demandes,
+                :jours_demandes,
+                :retour_travail,
+                0  -- vue définie explicitement à 0
+            )
         ");
         $stmt_insert->bindParam(':utilisateur_id', $utilisateur_id, PDO::PARAM_INT);
         $stmt_insert->bindParam(':type_conge', $type_conge, PDO::PARAM_STR);
@@ -71,12 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt_insert->bindParam(':retour_travail', $retour_travail, PDO::PARAM_BOOL);
         $stmt_insert->execute();
 
-        header('Location: user.php');
-
+        echo "Tentative de redirection vers recap.php...";
+        header('Location:recap.html' );
+        exit;
+        
     } catch (PDOException $e) {
         echo "Erreur de connexion à la base de données : " . $e->getMessage();
         exit;
     }
+
 } else {
     echo "Erreur : Méthode de requête non autorisée.\n";
     exit;

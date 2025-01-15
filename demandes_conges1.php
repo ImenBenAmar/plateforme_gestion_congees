@@ -68,8 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt_insert->bindParam(':retour_travail', $retour_travail, PDO::PARAM_BOOL);
         $stmt_insert->execute();
 
-        echo "Demande de congé envoyée avec succès pour l'utilisateur ID : " . htmlspecialchars($utilisateur_id);
-
+        echo "Tentative de redirection vers recap.php...";
+        header('Location:recap.html' );
+        exit;
     } catch (PDOException $e) {
         echo "Erreur de connexion à la base de données : " . $e->getMessage();
         exit;

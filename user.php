@@ -305,7 +305,7 @@ body {
     padding: 20px;
     border-radius: 8px; /* Coins légèrement arrondis si souhaité */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 1500px; /* Largeur ajustée pour la section d'information */
+    width: 1300px; /* Largeur ajustée pour la section d'information */
     border: none; /* Supprimer la bordure */
 }
 
@@ -549,13 +549,7 @@ body {
         border-bottom: none;
     }
 
-/* Conteneur principal pour le calendrier et la légende */
-.calendar-and-legend {
-    display: flex;
-    justify-content: space-between; /* Espacement entre le calendrier et la légende */
-    align-items: flex-start;
-    gap: 30px; /* Espacement entre le calendrier et la légende */
-}
+
 
 /* Couleur personnalisée pour 'Restant' */
 /* Couleur noir pour 'Restant' */
@@ -649,16 +643,23 @@ body {
 /* Conteneur global du calendrier et de la légende */
 .calendar-and-legend {
     display: flex;
-    flex-direction: row; /* Disposer les éléments horizontalement */
-    align-items: flex-start; /* Aligner le haut des deux conteneurs */
+    flex-direction: row;
+    align-items: flex-start;
     margin-top: 20px;
-    gap: 20px; /* Espacement entre le calendrier et la légende */
+    gap: 20px;
+    justify-content: center; /* Centrer horizontalement */
+    width: 100%; /* Assurez-vous que la largeur du conteneur est de 100% */
+    max-width: 1200px; /* Optionnel: Limitez la largeur pour éviter que le calendrier ne soit trop large */
+    margin-left: auto;  /* Pour centrer avec "auto" */
+    margin-right: auto; /* Pour centrer avec "auto" */
 }
 
 /* Conteneur principal du calendrier */
 .calendar-container {
-    flex: 3; /* Prend plus de place que la légende */
-    max-width: 900px;
+    flex: 3;
+    width: 100%; /* Assurez-vous que la largeur du calendrier est de 100% */
+    max-width: 900px; /* Limitez la largeur du calendrier */
+    margin: 0 auto; /* Centrer le calendrier horizontalement */
 }
 
 /* Matrice de calendrier */
@@ -679,44 +680,84 @@ body {
 }
 
 /* Conteneur de la légende */
-/* Conteneur de la légende */
 .custom-legend-container {
-    flex: 1; /* Toujours étroit que le calendrier */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Espacement réduit entre les éléments de la légende */
-    padding: 8px; /* Réduction de la marge interne */
-    background-color: #f9f9f9; /* Couleur de fond légère */
+    gap: 10px;
+    padding: 8px;
+    background-color: #f9f9f9;
     border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Légère ombre */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Ajustement pour chaque élément de la légende */
 .custom-legend-item {
     display: flex;
     align-items: center;
-    gap: 5px; /* Espacement réduit entre l'indicateur et le texte */
-    font-size: 12px; /* Réduction de la taille de la police */
+    gap: 5px;
+    font-size: 12px;
 }
 
 /* Style pour les indicateurs de la légende */
 .custom-legend-indicator {
-    width: 15px; /* Réduction de la largeur */
-    height: 15px; /* Réduction de la hauteur */
-    border-radius: 3px; /* Coins légèrement arrondis */
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
 }
 
 /* Texte de la légende */
 .custom-text-muted {
-    font-size: 12px; /* Réduction de la taille du texte */
-    color: #6c757d; /* Couleur du texte pour un contraste doux */
+    font-size: 12px;
+    color: #6c757d;
 }
 
 .custom-legend-count {
-    font-size: 12px; /* Taille de police plus petite */
-    font-weight: 600; /* Texte légèrement en gras */
+    font-size: 12px;
+    font-weight: 600;
     color: #333;
 }
+
+
+/* Conteneur de la légende */
+.custom-legend-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustement pour chaque élément de la légende */
+.custom-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+/* Style pour les indicateurs de la légende */
+.custom-legend-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+}
+
+/* Texte de la légende */
+.custom-text-muted {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.custom-legend-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+}
+
 
 
 
@@ -772,13 +813,56 @@ body {
 }
 
 
+.legend-container {
+    display: flex;
+    justify-content: flex-start; /* Aligner les éléments à gauche */
+    align-items: center; /* Centrer verticalement */
+    flex-direction: row; /* Placer les éléments sur la même ligne */
+    gap: 20px; /* Espacement entre les éléments */
+    margin-top: 20px; /* Espacement au-dessus */
+    padding-left: 320px; /* Ajouter de l'espace à gauche dans le conteneur */
+}
 
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacement entre l'indicateur et le texte */
+    font-size: 14px;
+}
+
+.legend-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.text-muted {
+    color: #6c757d;
+}
+
+/* Centrer #rapportContent au centre de la page */
+#rapportContent {
+    display: none; /* Par défaut, masqué */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centrer parfaitement */
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 8px;
+    z-index: 1000;
+}
 
 
     </style>
 </head>
 <body>
     <div class="top-bar">
+        <!-- Bouton "Historique" -->
+        <button class="top-bar-btn" onclick="window.location.href='login.html'">Déconnexion</button>
+    
+        <!-- Bouton "Dashboard" -->
 
     
         <!-- Bouton "Historique" -->
@@ -793,7 +877,7 @@ body {
     </span>
 </div>
 
-<div id="notificationDropdown" class="notification-dropdown">
+<div id="notificationDropdown" class="notification-dropdown" style="display:none;">
     <div id="notificationContent">
         <?php if ($notification_count > 0): ?>
             <?php foreach ($notifications as $notif): ?>
@@ -1137,7 +1221,39 @@ function loadRapport2() {
 
 
     
+    function fetchNotifications() {
+        fetch('get_notifications.php')
+            .then(response => response.json())
+            .then(data => {
+                const notificationBadge = document.getElementById('notificationBadge');
+                const notificationContent = document.getElementById('notificationContent');
 
+                // Réinitialiser le contenu
+                notificationContent.innerHTML = '';
+
+                if (data.length > 0) {
+                    // Afficher le nombre de notifications non lues
+                    notificationBadge.textContent = data.length;
+
+                    // Ajouter les notifications au menu déroulant
+                    data.forEach(notification => {
+                        const notifDiv = document.createElement('div');
+                        notifDiv.className = 'notification-item';
+                        notifDiv.innerHTML = `
+                            <p><strong>Statut :</strong> ${notification.status}</p>
+                            <p><strong>Début :</strong> ${notification.date_debut}</p>
+                            <p><strong>Fin :</strong> ${notification.date_fin}</p>
+                        `;
+                        notificationContent.appendChild(notifDiv);
+                    });
+                } else {
+                    // Aucune notification
+                    notificationBadge.textContent = '';
+                    notificationContent.innerHTML = '<p>Aucune nouvelle notification.</p>';
+                }
+            })
+            .catch(error => console.error('Erreur lors de la récupération des notifications:', error));
+    }
 
     function toggleNotification() {
         const dropdown = document.getElementById('notificationDropdown');
