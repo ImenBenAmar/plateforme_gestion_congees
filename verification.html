@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de Vérification</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f6f5f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: 'Montserrat', sans-serif; 
+            height: 100vh;
+            margin: -20px 0 50px;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Opacité pour voir le fond */
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 
+                        0 10px 10px rgba(0, 0, 0, 0.22);
+            position: relative;
+            overflow: hidden;
+            width: 400px; /* Ajustez la largeur selon vos besoins */
+            padding: 20px;
+            z-index: 2;
+        }
+
+        .form-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        h2 {
+            font-weight: bold;
+            margin: 0 0 20px;
+        }
+
+        button {
+            border-radius: 20px;
+            border: 1px solid #ec0ec7;
+            background-color: #ca2bff;
+            color: #FFFFFF;
+            font-size: 16px; /* Augmenté pour plus de lisibilité */
+            font-weight: bold;
+            padding: 10px 35px;
+            text-transform: uppercase;
+            margin: 10px 0; /* Espace entre les boutons */
+            transition: background-color 0.3s ease, transform 80ms ease-in;
+            cursor: pointer;
+            width: 100%; /* Prend toute la largeur */
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        button.admin {
+            background-color: #900cc5; /* Couleur spécifique pour le bouton admin */
+        }
+
+        button.admin:hover {
+            background-color: #d66bf3; /* Couleur au survol */
+        }
+
+        button.utilisateur {
+            background-color: #900cc5; /* Couleur spécifique pour le bouton utilisateur */
+        }
+
+        button.utilisateur:hover {
+            background-color: #ff6ae9; /* Couleur au survol */
+        }
+
+        .image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Derrière tout le reste */
+            overflow: hidden;
+        }
+
+        .image-container dotlottie-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+        <dotlottie-player 
+            src="https://lottie.host/596526e7-11c9-4a2c-ade8-0a9a994f4f2e/DF7QjAt6Si.lottie" 
+            background="transparent" 
+            speed="1" 
+            loop 
+            autoplay>
+        </dotlottie-player>
+    </div>
+
+    <div class="container" id="container">
+        <div class="form-container">
+            <h2>Bonjour et bienvenue </h2>
+            <h3>Choisissez votre rôle</h3>
+            <form action="loginadmin.html">
+                <button type="submit" class="admin">Administrateur</button>
+            </form>
+            <form action="login.html">
+                <button type="submit" class="utilisateur">Utilisateur</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
