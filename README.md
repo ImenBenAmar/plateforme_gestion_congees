@@ -20,7 +20,9 @@ Le projet **Gestion des Congés** est une application web conçue pour faciliter
 - **JavaScript** : Utilisé pour les interactions dynamiques sur le front-end.
 - **MySQL** : Système de gestion de base de données pour stocker les données de l'application.
 
-![Dashbord](https://drive.google.com/uc?export=view&id=1zWSNx6LhXNgOPS18gupJoAQnwQ-WFq2u)
+<p align="center">
+  <img src="dashbord.png" width="800"/>
+</p>
 
 
 ## Installation
